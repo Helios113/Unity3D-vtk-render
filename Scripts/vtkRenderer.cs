@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+
 [RequireComponent(typeof(MeshFilter))]
 public class vtkRenderer : MonoBehaviour
 {
@@ -9,18 +10,20 @@ public class vtkRenderer : MonoBehaviour
     bool single = false;
     bool play = false;
     int frameTimeMili = 1000;
-    void Start()
+    public void GetMesh()
     {
+        mesh = new Mesh();
         GetComponent<MeshFilter>().mesh = mesh;
     }
 
     // Update is called once per frame
-    void Render(string[] frames, string[] vectors = null, bool lessMem = false)
+    public void Render(string[] frames, string[] vectors = null, bool lessMem = false)
     {
-       StopAllCoroutines();
-       if(lessMem)
+        StopAllCoroutines();
+        
+        if(lessMem)
             StartCoroutine(AnimateCoroutine(frames,vectors));
-       else
+        else
         {
             vtkObj[] objs = vtkReader.Read(frames, vectors);
             StartCoroutine(AnimateCoroutine(objs));
@@ -35,6 +38,7 @@ public class vtkRenderer : MonoBehaviour
         int len = frames.Length;
         while (true)
         {
+            mesh.Clear();
             mesh.vertices = frames[i].points;
             mesh.triangles = frames[i].tris;
             //mesh.colors = frames[i].colors;

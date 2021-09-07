@@ -365,9 +365,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   paths:
-  - 
-  vectors:
-  - Displacement
+  - Assets/vtk/out_skin_100.vtk
+  - Assets/vtk/out_skin_200.vtk
+  - Assets/vtk/out_skin_300.vtk
+  - Assets/vtk/out_skin_400.vtk
+  vectors: []
   frameTimeMilliseconds: 1000
   saveMemory: 0
   vectorScale: 1

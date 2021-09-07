@@ -26,25 +26,24 @@ public class vtkParser : MonoBehaviour
             nuberOfVectors = vectors.Length;
             vectorsData = new Vector3[nuberOfVectors][];
         }
-        string param;
         while ((line = file.ReadLine()) != null)
         {
-            param = line.Split(' ')[1];
+            
             if (line.Contains("POINTS"))
             {
-                vertixSize = Convert.ToInt32(param);
+                vertixSize = Convert.ToInt32(line.Split(' ')[1]);
                 Debug.Log("Points size: "+ vertixSize);
                 points = GetPoints(file, vertixSize);
             }
             if (line.Contains("CELLS"))
             {
-                cellSize = Convert.ToInt32(param);
+                cellSize = Convert.ToInt32(line.Split(' ')[1]);
                 Debug.Log("Cell size: " + cellSize);
                 cells = GetCells(file, cellSize);
             }
             if (line.Contains("CELL_TYPES"))
             {
-                cellSize = Convert.ToInt32(param);
+                cellSize = Convert.ToInt32(line.Split(' ')[1]);
                 Debug.Log("Cell type size: " + cellSize);
                 if (lessMem)
                     tris = GetCellTtriangles(file, cellSize, cells);
@@ -53,7 +52,7 @@ public class vtkParser : MonoBehaviour
             }
             if (nuberOfVectors!=0 && line.Contains("VECTORS"))
             {
-                vectorsData[Array.IndexOf(vectors, param)] = GetVector(file, vertixSize);
+                vectorsData[Array.IndexOf(vectors, line.Split(' ')[1])] = GetVector(file, vertixSize);
             }
         }
         if (!lessMem && cells.Length != 0 && cellTypes.Length != 0)
@@ -114,7 +113,7 @@ public class vtkParser : MonoBehaviour
         {
             res.AddRange(vtkCellToTris.GetTrianglesFromData(cells[i], int.Parse(file.ReadLine())));
         }
-        return res.ToArray();
+        return res.ToArray<int>();
     }
     static int[] GetCellTtriangles(int size, List<int>[] cells, int[] cellTypes)
     {
