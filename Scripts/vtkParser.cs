@@ -7,7 +7,7 @@ using System;
 
 public class vtkParser : MonoBehaviour
 {
-    vtkObj Parse(System.IO.StreamReader file, bool lessMem = true, string[] vectors = null)
+    static public vtkObj Parse(System.IO.StreamReader file, bool lessMem = true, string[] vectors = null)
     {
         int vertixSize = 0;
         int cellSize = 0;
@@ -63,7 +63,7 @@ public class vtkParser : MonoBehaviour
         return new vtkObj(points, tris, vectorsData);
 
     }
-    Vector3[] GetPoints(System.IO.StreamReader file, int size)
+    static Vector3[] GetPoints(System.IO.StreamReader file, int size)
     {
         Vector3[] array = new Vector3[size];
         for (int i = 0; i < size; i++)
@@ -76,7 +76,7 @@ public class vtkParser : MonoBehaviour
         return array;
     }
 
-    List<int>[] GetCells(System.IO.StreamReader file, int size)
+    static List<int>[] GetCells(System.IO.StreamReader file, int size)
     {
         List<int>[] array = new List<int>[size];
         for (int i = 0; i < size; i++)
@@ -96,7 +96,7 @@ public class vtkParser : MonoBehaviour
 
         return array;
     }
-    int[] GetCellTypes(System.IO.StreamReader file, int size)
+    static int[] GetCellTypes(System.IO.StreamReader file, int size)
     {
         int[] array = new int[size];
         for (int i = 0; i < size; i++)
@@ -107,7 +107,7 @@ public class vtkParser : MonoBehaviour
         return array;
     }
 
-    int[] GetCellTtriangles(System.IO.StreamReader file, int size, List<int>[] cells)
+    static int[] GetCellTtriangles(System.IO.StreamReader file, int size, List<int>[] cells)
     {
         List<int> res = new List<int>();
         for (int i = 0; i < size; i++)
@@ -116,12 +116,12 @@ public class vtkParser : MonoBehaviour
         }
         return res.ToArray();
     }
-    int[] GetCellTtriangles(int size, List<int>[] cells, int[] cellTypes)
+    static int[] GetCellTtriangles(int size, List<int>[] cells, int[] cellTypes)
     {
         return vtkCellToTris.GetTrianglesFromData(size, cells, cellTypes).ToArray<int>();
     }
 
-    Vector3[] GetVector(System.IO.StreamReader file, int vertixSize)
+    static Vector3[] GetVector(System.IO.StreamReader file, int vertixSize)
     {
         Vector3[] array = new Vector3[vertixSize];
         string line;
