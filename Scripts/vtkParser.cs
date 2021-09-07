@@ -56,6 +56,11 @@ public class vtkParser : MonoBehaviour
                 Debug.Log("And to here");
                 vectorsData[Array.IndexOf(vectors, line.Split(' ')[1])] = GetVector(file, vertixSize);
             }
+            if (nuberOfVectors != 0 && line.Contains("SCALARS"))
+            {
+                Debug.Log("And to here");
+                //vectorsData[Array.IndexOf(vectors, line.Split(' ')[1])] = GetVector(file, vertixSize);
+            }
         }
         if (!lessMem && cells.Length != 0 && cellTypes.Length != 0)
         {

@@ -56,6 +56,7 @@ public class vtkRenderer : MonoBehaviour
             }
             mesh.vertices = a;
             mesh.triangles = frames[i].tris;
+            
             bic = new float[frames[i].points.Length];
             float max = float.MinValue;
             float min = float.MaxValue;
@@ -115,7 +116,9 @@ public class vtkRenderer : MonoBehaviour
 
     //Colouring
 
+    //Vector fields
 
+    //Scalar fields
 
     //Communication
     public void SetFrameTime(int time)
