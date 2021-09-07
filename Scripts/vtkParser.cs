@@ -23,6 +23,7 @@ public class vtkParser : MonoBehaviour
         int nuberOfVectors = 0;
         if (vectors != null)
         {
+            Debug.Log("We got to here " + vectors.Length);
             nuberOfVectors = vectors.Length;
             vectorsData = new Vector3[nuberOfVectors][];
         }
@@ -52,6 +53,7 @@ public class vtkParser : MonoBehaviour
             }
             if (nuberOfVectors!=0 && line.Contains("VECTORS"))
             {
+                Debug.Log("And to here");
                 vectorsData[Array.IndexOf(vectors, line.Split(' ')[1])] = GetVector(file, vertixSize);
             }
         }

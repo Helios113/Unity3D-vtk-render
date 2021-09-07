@@ -365,11 +365,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   paths:
+  - Assets/vtk/out_skin_0.vtk
   - Assets/vtk/out_skin_100.vtk
   - Assets/vtk/out_skin_200.vtk
   - Assets/vtk/out_skin_300.vtk
   - Assets/vtk/out_skin_400.vtk
-  vectors: []
+  - Assets/vtk/out_skin_500.vtk
+  vectors:
+  - DISPLACEMENT
   frameTimeMilliseconds: 1000
   saveMemory: 0
   vectorScale: 1
@@ -451,8 +454,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   grad:
     serializedVersion: 2
-    key0: {r: 1, g: 1, b: 1, a: 1}
-    key1: {r: 1, g: 1, b: 1, a: 1}
+    key0: {r: 0.065929815, g: 0.0047169924, b: 1, a: 1}
+    key1: {r: 1, g: 0, b: 0, a: 1}
     key2: {r: 0, g: 0, b: 0, a: 0}
     key3: {r: 0, g: 0, b: 0, a: 0}
     key4: {r: 0, g: 0, b: 0, a: 0}
@@ -478,3 +481,6 @@ MonoBehaviour:
     m_Mode: 0
     m_NumColorKeys: 2
     m_NumAlphaKeys: 2
+  col: []
+  bic: []
+  factor: 2
