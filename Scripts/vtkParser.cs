@@ -7,67 +7,60 @@ using System;
 
 public class vtkParser : MonoBehaviour
 {
-    // Start is called before the first frame update
-    
-    Vector3[] vertices;
-    public Color[] colors;
-    int[] tris;
-    int vertixSize = 0;
-    int cellSize = 0;
-
-    float min = float.MaxValue;
-    float max = float.MinValue;
-    
-    vtkObj Parse(System.IO.StreamReader file, bool lessMem = false)
+    vtkObj Parse(System.IO.StreamReader file, bool lessMem = true, string[] vectors = null)
     {
-        string line;
-        dynamic displVector;
-        if (lessMem)
-            displVector = new Vector3[] { };
-        else
-            displVector = new Vector4[] { };
+        int vertixSize = 0;
+        int cellSize = 0;
 
-        List<int>[] cells = new List<int>[] { };
-        Vector3[] points = new Vector3[] { };
-        int[] cellTypes = new int[] { };
-        int[] tris = new int[] { };
+        Vector3[] points = null; // store vertex information
+        List<int>[] cells = null; // store cell information
+        int[] cellTypes = null; // store cell types
+        int[] tris = null; // store triangles
+        Vector3[][] vectorsData = null; // place to store all required vector data
 
+        string line = "";
+
+        int nuberOfVectors = 0;
+        if (vectors != null)
+        {
+            nuberOfVectors = vectors.Length;
+            vectorsData = new Vector3[nuberOfVectors][];
+        }
+        string param;
         while ((line = file.ReadLine()) != null)
         {
+            param = line.Split(' ')[1];
             if (line.Contains("POINTS"))
             {
-                int num = Convert.ToInt32(line.Split(' ')[1]);
-                Debug.Log("Points size: "+num);
-                points = GetPoints(file, num);
-                vertixSize = num;
-                displVector = new Color[num];
+                vertixSize = Convert.ToInt32(param);
+                Debug.Log("Points size: "+ vertixSize);
+                points = GetPoints(file, vertixSize);
             }
             if (line.Contains("CELLS"))
             {
-                int num = Convert.ToInt32(line.Split(' ')[1]);
-                cellSize = num;
-                Debug.Log("Cell size: " + num);
-                cells = GetCells(file, num);
+                cellSize = Convert.ToInt32(param);
+                Debug.Log("Cell size: " + cellSize);
+                cells = GetCells(file, cellSize);
             }
             if (line.Contains("CELL_TYPES"))
             {
-                int num = Convert.ToInt32(line.Split(' ')[1]);
-                Debug.Log("Cell type size: " + num);
+                cellSize = Convert.ToInt32(param);
+                Debug.Log("Cell type size: " + cellSize);
                 if (lessMem)
-                    tris = GetCellTtriangles(file, num, cells);
+                    tris = GetCellTtriangles(file, cellSize, cells);
                 else
-                    cellTypes = GetCellTypes(file, num);
+                    cellTypes = GetCellTypes(file, cellSize);
             }
-            if (line.Contains("VECTORS DISPLACEMENT"))
+            if (nuberOfVectors!=0 && line.Contains("VECTORS"))
             {
-                displVector = GetVector(file);
+                vectorsData[Array.IndexOf(vectors, param)] = GetVector(file, vertixSize);
             }
         }
         if (!lessMem && cells.Length != 0 && cellTypes.Length != 0)
         {
-            tris = vtkCellToTris.GetTrianglesFromData(cellSize, cells, cellTypes).ToArray<int>();
+            tris = GetCellTtriangles(cellSize, cells, cellTypes);
         }
-        return new vtkObj(points, tris, displVector);
+        return new vtkObj(points, tris, vectorsData);
 
     }
     Vector3[] GetPoints(System.IO.StreamReader file, int size)
@@ -123,25 +116,22 @@ public class vtkParser : MonoBehaviour
         }
         return res.ToArray();
     }
-
-    Vector4[] GetVector(System.IO.StreamReader file)
+    int[] GetCellTtriangles(int size, List<int>[] cells, int[] cellTypes)
     {
-        Vector4[] array = new Vector4[vertixSize];
-        
+        return vtkCellToTris.GetTrianglesFromData(size, cells, cellTypes).ToArray<int>();
+    }
+
+    Vector3[] GetVector(System.IO.StreamReader file, int vertixSize)
+    {
+        Vector3[] array = new Vector3[vertixSize];
+        string line;
+        double[] vals;
         for (int i = 0; i < vertixSize; i++)
         {
-            string line = file.ReadLine();
-            
-            double[] vals = line.Trim().Split(' ').Select(Convert.ToDouble).ToArray();
-            float avg = (float)vals.Average();
-            if (avg > max)
-                max = avg;
-            if (avg < min)
-                min = avg;
-            array[i] = new Vector4((float)vals[0], (float)vals[1], (float)vals[2],avg ) ;
-            //Debug.Log(array[i].w.ToString());
+            line = file.ReadLine();
+            vals = line.Trim().Split(' ').Select(Convert.ToDouble).ToArray();
+            array[i] = new Vector3((float)vals[0], (float)vals[1], (float)vals[2]);
         }
-
         return array;
     }
 }
@@ -149,8 +139,8 @@ public class vtkObj
 {
     public Vector3[] points;
     public int[] tris;
-    public Color[] colors;
-    public vtkObj(Vector3[] points, int[] tris, Color[] colors)
+    public Vector3[][] colors;
+    public vtkObj(Vector3[] points, int[] tris, Vector3[][] colors)
     {
         this.points = points;
         this.tris = tris;
