@@ -26,10 +26,12 @@ public class vtkParser : MonoBehaviour
             displVector = new Vector3[] { };
         else
             displVector = new Vector4[] { };
+
         List<int>[] cells = new List<int>[] { };
         Vector3[] points = new Vector3[] { };
         int[] cellTypes = new int[] { };
         int[] tris = new int[] { };
+
         while ((line = file.ReadLine()) != null)
         {
             if (line.Contains("POINTS"))
@@ -51,22 +53,21 @@ public class vtkParser : MonoBehaviour
             {
                 int num = Convert.ToInt32(line.Split(' ')[1]);
                 Debug.Log("Cell type size: " + num);
-                cellTypes = GetCellTypes(file, num);
+                if (lessMem)
+                    tris = GetCellTtriangles(file, num, cells);
+                else
+                    cellTypes = GetCellTypes(file, num);
             }
             if (line.Contains("VECTORS DISPLACEMENT"))
             {
-                displVector = GetColors(file);
+                displVector = GetVector(file);
             }
         }
-        if (cells.Length != 0 && cellTypes.Length != 0)
+        if (!lessMem && cells.Length != 0 && cellTypes.Length != 0)
         {
             tris = vtkCellToTris.GetTrianglesFromData(cellSize, cells, cellTypes).ToArray<int>();
-            for (int i = 0; i < vertixSize; i++)
-            {
-                colors[i] = grad.Evaluate((displVector[i].x - min) / (max - min));
-            }
         }
-        return new vtkObj(points, tris, colors);
+        return new vtkObj(points, tris, displVector);
 
     }
     Vector3[] GetPoints(System.IO.StreamReader file, int size)
@@ -115,15 +116,15 @@ public class vtkParser : MonoBehaviour
 
     int[] GetCellTtriangles(System.IO.StreamReader file, int size, List<int>[] cells)
     {
-        
+        List<int> res = new List<int>();
         for (int i = 0; i < size; i++)
         {
-            vtkCellToTris.GetTrianglesFromData(1, cells[i], int.Parse(file.ReadLine())).ToArray<int>();
+            res.AddRange(vtkCellToTris.GetTrianglesFromData(cells[i], int.Parse(file.ReadLine())));
         }
-        return array;
+        return res.ToArray();
     }
 
-    Vector4[] GetColors(System.IO.StreamReader file)
+    Vector4[] GetVector(System.IO.StreamReader file)
     {
         Vector4[] array = new Vector4[vertixSize];
         

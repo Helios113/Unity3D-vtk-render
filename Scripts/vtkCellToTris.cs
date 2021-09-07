@@ -12,7 +12,6 @@ public class vtkCellToTris : MonoBehaviour
         {
             res.AddRange(GetTrianglesFromData(cells[i], types[i]));
         }
-
         return res;
     }
 
