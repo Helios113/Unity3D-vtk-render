@@ -1,0 +1,10 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!49 &4900000
+TextAsset:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: config_1
+  m_Script: vtk1/out_result_0,vtk1/out_result_1,vtk1/out_result_2,vtk1/out_result_3,vtk1/out_result_4,vtk1/out_result_5,vtk1/out_result_6,vtk1/out_result_7,vtk1/out_result_8,vtk1/out_result_9

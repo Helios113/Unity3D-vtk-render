@@ -417,50 +417,50 @@ public class vtkCellToTris : MonoBehaviour
     static List<int> quadraticTriangle(List<int> verts)
     {
         List<int> work = new List<int>();
-        work.Add(verts[3]);
-        work.Add(verts[5]);
         work.Add(verts[0]);
+        work.Add(verts[5]);
+        work.Add(verts[3]);
 
-        work.Add(verts[4]);
+        work.Add(verts[5]);
         work.Add(verts[2]);
-        work.Add(verts[5]);
-
         work.Add(verts[4]);
-        work.Add(verts[5]);
-        work.Add(verts[3]);
 
+        work.Add(verts[3]);
+        work.Add(verts[5]);
+        work.Add(verts[4]);
+
+        work.Add(verts[3]);
+        work.Add(verts[4]);
         work.Add(verts[1]);
-        work.Add(verts[4]);
-        work.Add(verts[3]);
 
         return work;
     }
     static List<int> quadraticQuad(List<int> verts)
     {
         List<int> work = new List<int>();
+        work.Add(verts[7]);
+        work.Add(verts[4]);
         work.Add(verts[0]);
-        work.Add(verts[4]);
-        work.Add(verts[7]);
 
-        work.Add(verts[4]);
-        work.Add(verts[6]);
         work.Add(verts[7]);
-
         work.Add(verts[6]);
+        work.Add(verts[4]);
+
+        work.Add(verts[7]);
         work.Add(verts[3]);
-        work.Add(verts[7]);
-
-        work.Add(verts[4]);
-        work.Add(verts[5]);
         work.Add(verts[6]);
 
+        work.Add(verts[6]);
         work.Add(verts[5]);
+        work.Add(verts[4]);
+
+        work.Add(verts[6]);
         work.Add(verts[2]);
-        work.Add(verts[6]);
-
-        work.Add(verts[4]);
-        work.Add(verts[1]);
         work.Add(verts[5]);
+
+        work.Add(verts[5]);
+        work.Add(verts[1]);
+        work.Add(verts[4]);
 
         return work;
     }

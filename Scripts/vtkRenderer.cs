@@ -1,100 +1,85 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System.Linq;
 
-[RequireComponent(typeof(MeshFilter))]
 public class vtkRenderer : MonoBehaviour
 {
     Mesh mesh;
     public Gradient grad;
-    public Color[] col;
+    GradientColorKey[] colorKey;
+    GradientAlphaKey[] alphaKey;
     public float[] bic;
     public float factor = 1;
     bool single = false;
-    bool play = false;
-    int frameTimeMili = 1000;
-    int currentVector = 0;
-    public void GetMesh()
+    public bool play = true;
+    public int frameTimeMili = 400;
+    public int currentVector = -1;
+    public int currentScalar = 0;
+    public string[] frames;
+    public string[] vectors = null;
+    public string[] scalars = {"P"};
+
+    public void SetFrames(string[] frames)
+    {
+        this.frames = frames;
+        CreateMesh();
+        Render();
+    }
+    public void CreateMesh()
     {
         mesh = new Mesh();
         GetComponent<MeshFilter>().mesh = mesh;
+        grad = new Gradient();
+
+        // Populate the color keys at the relative time 0 and 1 (0 and 100%)
+        colorKey = new GradientColorKey[2];
+        colorKey[0].color = Color.red;
+        colorKey[0].time = 0.0f;
+        colorKey[1].color = Color.blue;
+        colorKey[1].time = 1.0f;
+
+        // Populate the alpha  keys at relative time 0 and 1  (0 and 100%)
+        alphaKey = new GradientAlphaKey[2];
+        alphaKey[0].alpha = 1.0f;
+        alphaKey[0].time = 0.0f;
+        alphaKey[1].alpha = 1.0f;
+        alphaKey[1].time = 1.0f;
+
+        grad.SetKeys(colorKey, alphaKey);
     }
 
     // Update is called once per frame
-    public void Render(string[] frames, string[] vectors = null, bool lessMem = false)
+    public void Render(bool lessMem = false)
     {
         StopAllCoroutines();
-        
-        if(lessMem)
-            StartCoroutine(AnimateCoroutine(frames,vectors));
-        else
-        {
-            vtkObj[] objs = vtkReader.Read(frames, vectors);
-            StartCoroutine(AnimateCoroutine(objs));
-        }
-
+        vtkObj[] objs = vtkReader.Read(frames, vectors, scalars);
+        StartCoroutine(AnimateCoroutine(objs));
     }
 
     // Animation
     IEnumerator AnimateCoroutine(vtkObj[] frames)
     {
         int i = 0;
-        int len = frames.Length;
-        
+        int frameCount = frames.Length;
+        Debug.Log("Frame count: "+frameCount);
         while (true)
         {
             mesh.Clear();
-            Vector3[] a = new Vector3[frames[i].points.Length];
-            //Debug.LogError(frames[i].colors.Length);
-            //Debug.LogError(frames[i].colors[0].Length);
-            //Debug.LogError(frames[i].points.Length);
-            //Debug.LogError(currentVector);
-            for (int j=0;j < frames[i].points.Length;j++)
-            {
-                //Debug.Log(frames[i].points[j].ToString()+" + "+ frames[i].colors[currentVector][j].ToString());
-                a[j] = frames[i].points[j] + factor*frames[i].colors[currentVector][j];
-            }
-            mesh.vertices = a;
-            mesh.triangles = frames[i].tris;
-            
-            bic = new float[frames[i].points.Length];
-            float max = float.MinValue;
-            float min = float.MaxValue;
-            for (int j = 0; j < frames[i].points.Length; j++)
-            {
-                bic[j] = Mathf.Sqrt(Mathf.Pow(frames[i].colors[currentVector][j].x, 2) + Mathf.Pow(frames[i].colors[currentVector][j].y, 2) + Mathf.Pow(frames[i].colors[currentVector][j].z, 2));
-                //bic[j] = frames[i].colors[currentVector][j].x;
-                if (bic[j] > max)
-                {
-                    max = bic[j];
-                }
-                if(bic[j] < min)
-                {
-                    min = bic[j];
-                }
-            }
-            col = new Color[frames[i].points.Length];
-            for (int j = 0; j < frames[i].points.Length; j++)
-            {
-                if (max != min)
-                {
-                    float c = (bic[j] - min) / (max - min);
-                    col[j] = grad.Evaluate(c);
-                }
-                else
-                    col[j] = grad.Evaluate(0);
-            }
+            mesh.vertices = Vertices(frames[i]);
 
-            mesh.colors = col;
+            mesh.triangles = frames[i].tris;
+           
+            mesh.colors = ColorMap(frames[i]);
             mesh.RecalculateNormals();
             i++;
-            i %= len;
+            i %= frameCount;
+            yield return new WaitForSeconds(frameTimeMili/1000.0f);
             if (!play)
                 yield return new WaitUntil(new System.Func<bool>(() => play));
-            yield return new WaitForSeconds(frameTimeMili/1000.0f);
         }
     }
-    IEnumerator AnimateCoroutine(string[] frames, string[] vectors = null)
+    IEnumerator AnimateCoroutine(string[] frames, string[] vectors = null, string[] scalars=null)
     {
         int i = 0;
         int len = frames.Length;
@@ -115,10 +100,70 @@ public class vtkRenderer : MonoBehaviour
     }
 
     //Colouring
+    Color[] ColorMap(vtkObj data)
+    {
+        float[] vals = new float[data.points.Length];
+        if (data.is2D && currentScalar!=-1)
+        {
+            vals = data.scals[currentScalar];
+        }
+        if (!data.is2D && currentVector != -1)
+        {
+            for (int i =0;i< data.points.Length;i++)
+            {
+                vals[i] = data.vecs[currentVector][i].x;
+            }
+        }
+        int vertexCount = vals.Length;
+        Color[] color = new Color[vertexCount];
+        float max = vals.Max();
+        float min = vals.Min();
+        for (int j = 0; j < vertexCount; j++)
+        {
+            if (max != min)
+            {
+                float c = (vals[j] - min) / (max - min);
+                color[j] = grad.Evaluate(c);
+            }
+            else
+                color[j] = grad.Evaluate(0);
+        }
+        return color;
+
+    }
+
+    Vector3[] Vertices(vtkObj data)
+    {
+        int len = data.points.Length;
+        Vector3[] ret = new Vector3[len];
+        if (data.is2D && currentScalar!=-1)
+        {
+            for (int i = 0; i < len; i++)
+            {
+                ret[i] = data.points[i] + new Vector3(0, factor * data.scals[currentScalar][i]);
+            }
+        }
+        else if (!data.is2D && currentVector != -1)
+        {
+            for (int i = 0; i < len; i++)
+            {
+                ret[i] = data.points[i] + factor * data.vecs[currentVector][i];
+            }
+        }
+        else
+        {
+            return data.points;
+        }
+            return ret;
+    }
 
     //Vector fields
+    //Calculates value from vector field
+    //call vec field, then pass to color and verts
 
     //Scalar fields
+    //just returns maybe
+    //call Scalar field, then pass to color and verts
 
     //Communication
     public void SetFrameTime(int time)

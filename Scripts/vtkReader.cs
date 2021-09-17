@@ -4,24 +4,23 @@ using UnityEngine;
 
 public class vtkReader : MonoBehaviour
 {
-    // Start is called before the first frame update
-    static public vtkObj[] Read(string[] path, string[] vectors = null)
+    static public vtkObj[] Read(string[] path, string[] vectors = null, string[] scalars = null)
     {
+
         int len = path.Length;
         vtkObj[] objects = new vtkObj[len];
         for (int i =0;i<len; i++)
         {
-            objects[i] = Read(path[i], vectors);
+            objects[i] = Read(path[i], vectors, scalars);
         }
         return objects;
 
     }
 
-    static public vtkObj Read(string path, string[] vectors)
+    static public vtkObj Read(string path, string[] vectors=null, string[] scalars = null)
     {
-        System.IO.StreamReader file = new System.IO.StreamReader(path);
-        vtkObj obj = vtkParser.Parse(file, true, vectors);
-        file.Close();
+        TextAsset ta = Resources.Load(path) as TextAsset;
+        vtkObj obj = vtkParser.Parse(ta.text, vectors, scalars);
         return obj;
     }
 
