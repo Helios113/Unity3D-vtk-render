@@ -45,8 +45,8 @@ One of the main goals of this project was to make a compact and efficient librar
 4. Drag the dataset folders into the Vtk Folders field of VtkConvert
 5. Click on the "Convert" button
     This will generate folders named vtk_# in the Resources folder. For each vtk folder there will be one config file with a matching name.
-    6. Drag the config files on to the VtkObj field of the VtkFileHandler.
-    7. Assign a proper shader in the color shader field.
+6. Drag the config files on to the VtkObj field of the VtkFileHandler.
+7. Assign a proper shader in the color shader field.
 
 Once you hit play the file handler will load all the files into memory and render them. Each new file has properties which you can edit in game. If the object turns out to be a neon purple color that means that your shader does not support vertex colors. In the project there are two shaders available (one for URP and one for standard) which you can use.
 
