@@ -63,3 +63,5 @@ There are a few points on which future development is based. They are:
 3. Creating a additional render pipeline for high-order elements
 4. Adding all of vtk's render cell types.
 
+If you have any other ideas of features that should be added you can always make an issue and describe your use case and userbase.
+
