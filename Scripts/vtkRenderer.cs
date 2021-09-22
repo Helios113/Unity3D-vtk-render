@@ -18,7 +18,8 @@ public class vtkRenderer : MonoBehaviour
     public int currentScalar = 0;
     public string[] frames;
     public string[] vectors = null;
-    public string[] scalars = {"P"};
+    public string[] scalars = { "P" };
+    private bool oneShot = true;
 
     public void SetFrames(string[] frames)
     {
@@ -62,24 +63,35 @@ public class vtkRenderer : MonoBehaviour
     {
         int i = 0;
         int frameCount = frames.Length;
-        Debug.Log("Frame count: "+frameCount);
-        while (true)
+        Debug.Log("Frame count: " + frameCount);
+
+        do
         {
             mesh.Clear();
             mesh.vertices = Vertices(frames[i]);
-
             mesh.triangles = frames[i].tris;
-           
             mesh.colors = ColorMap(frames[i]);
             mesh.RecalculateNormals();
+            if (oneShot && i == 0)
+            {
+                Debug.LogWarning("Object size: " + GetComponent<MeshRenderer>().bounds.size);
+                Vector3 v3 = GetComponent<MeshRenderer>().bounds.size;
+                float size = Mathf.Max(Mathf.Max(v3.x, v3.y), v3.z);
+                Debug.LogWarning("Max size: " + size);
+
+                Debug.LogWarning("Current scale: " + gameObject.transform.localScale);
+                gameObject.transform.localScale = 0.3f * Vector3.one / size;
+                Debug.LogWarning("New scale: " + gameObject.transform.localScale);
+                oneShot = false;
+            }
             i++;
             i %= frameCount;
-            yield return new WaitForSeconds(frameTimeMili/1000.0f);
+            yield return new WaitForSeconds(frameTimeMili / 1000.0f);
             if (!play)
                 yield return new WaitUntil(new System.Func<bool>(() => play));
-        }
+        } while (true);
     }
-    IEnumerator AnimateCoroutine(string[] frames, string[] vectors = null, string[] scalars=null)
+    IEnumerator AnimateCoroutine(string[] frames, string[] vectors = null, string[] scalars = null)
     {
         int i = 0;
         int len = frames.Length;
@@ -103,13 +115,13 @@ public class vtkRenderer : MonoBehaviour
     Color[] ColorMap(vtkObj data)
     {
         float[] vals = new float[data.points.Length];
-        if (data.is2D && currentScalar!=-1)
+        if (data.is2D && currentScalar != -1)
         {
             vals = data.scals[currentScalar];
         }
         if (!data.is2D && currentVector != -1)
         {
-            for (int i =0;i< data.points.Length;i++)
+            for (int i = 0; i < data.points.Length; i++)
             {
                 vals[i] = data.vecs[currentVector][i].x;
             }
@@ -136,7 +148,7 @@ public class vtkRenderer : MonoBehaviour
     {
         int len = data.points.Length;
         Vector3[] ret = new Vector3[len];
-        if (data.is2D && currentScalar!=-1)
+        if (data.is2D && currentScalar != -1)
         {
             for (int i = 0; i < len; i++)
             {
@@ -154,7 +166,7 @@ public class vtkRenderer : MonoBehaviour
         {
             return data.points;
         }
-            return ret;
+        return ret;
     }
 
     //Vector fields
