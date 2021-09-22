@@ -65,3 +65,7 @@ There are a few points on which future development is based. They are:
 
 If you have any other ideas of features that should be added you can always make an issue and describe your use case and userbase.
 
+# Testing
+
+The Assets contain two test folders which can be used to verify if the scripts are working after modifications. The best way to verify if the vtk are rendered correctly is to install [Paraview](https://www.paraview.org/), load the same files and compare.
+
