@@ -1,4 +1,4 @@
-# vtkUnity
+# Unity3D vtk render
 
 vtkUnity is a project which aims to deliver universal compatibility between vtk files and the Unity3D game engine.   
 The project comprises of series of open source C# scripts which currently implement support for non-XML vtk files. The scripts are written with hackability and portability in mind. The main motivation for this project was to allow for the dynamic render of dynamic datasets on VR headsets which run android (Oculus Quest). This resulted in a library which is fully portable and can support all mobile, desktop and web platforms.
