@@ -470,7 +470,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   vtkFolders:
-  - {fileID: 102900000, guid: e7f2daf1fd570bf49b5a8d419cbc03c9, type: 3}
+  - {fileID: 102900000, guid: 484254b195490a041bdac3828ef8a7f3, type: 3}
 --- !u!33 &1246691025
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -547,7 +547,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   vtkObjs:
-  - {fileID: 4900000, guid: ac4038ad76105844795d6c975c35875e, type: 2}
+  - {fileID: 0}
   colorShader: {fileID: -6465566751694194690, guid: f3c6fa76e7b0d204188448875ea6ef27, type: 3}
   renderObjects: []
   text: {fileID: 0}

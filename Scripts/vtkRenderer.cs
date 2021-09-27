@@ -12,14 +12,17 @@ public class vtkRenderer : MonoBehaviour
     public float[] bic;
     public float factor = 1;
     bool single = false;
-    public bool play = true;
+    public bool play = false;
     public int frameTimeMili = 400;
     public int currentVector = -1;
-    public int currentScalar = 0;
+    public int currentScalar =-1;
     public string[] frames;
     public string[] vectors = null;
-    public string[] scalars = { "P" };
+    public string[] scalars = null;
+    public bool showVertex = false;
+    public bool autoScale = false;
     private bool oneShot = true;
+    private GameObject verteces;
 
     public void SetFrames(string[] frames)
     {
@@ -32,7 +35,8 @@ public class vtkRenderer : MonoBehaviour
         mesh = new Mesh();
         GetComponent<MeshFilter>().mesh = mesh;
         grad = new Gradient();
-
+        verteces = new GameObject();
+        verteces.transform.parent = this.transform;
         // Populate the color keys at the relative time 0 and 1 (0 and 100%)
         colorKey = new GradientColorKey[2];
         colorKey[0].color = Color.red;
@@ -68,11 +72,11 @@ public class vtkRenderer : MonoBehaviour
         do
         {
             mesh.Clear();
-            mesh.vertices = Vertices(frames[i]);
+            mesh.vertices = Vertices(frames[i], showVertex);
             mesh.triangles = frames[i].tris;
             mesh.colors = ColorMap(frames[i]);
             mesh.RecalculateNormals();
-            if (oneShot && i == 0)
+            if (autoScale && oneShot && i == 0)
             {
                 Debug.LogWarning("Object size: " + GetComponent<MeshRenderer>().bounds.size);
                 Vector3 v3 = GetComponent<MeshRenderer>().bounds.size;
@@ -114,7 +118,13 @@ public class vtkRenderer : MonoBehaviour
     //Colouring
     Color[] ColorMap(vtkObj data)
     {
+
+        //Coloring
+        //There need to be three types of coloring
+        //Vector field, Scalar field and none
         float[] vals = new float[data.points.Length];
+        //Easiest first NONE
+       
         if (data.is2D && currentScalar != -1)
         {
             vals = data.scals[currentScalar];
@@ -143,8 +153,22 @@ public class vtkRenderer : MonoBehaviour
         return color;
 
     }
-
-    Vector3[] Vertices(vtkObj data)
+    public List<GameObject> CreateSpheres(Vector3[] vertices)
+    {
+        float threshold = 0.0f;
+        List<GameObject> cubes = new List<GameObject>();
+        foreach (Vector3 vert in vertices)
+        {
+            if (cubes.Any(sph => (sph.transform.position - vert).magnitude < threshold)) continue;
+            GameObject cube = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            cube.transform.position = vert;
+            cube.transform.localScale = new Vector3(0.01f, 0.01f, 0.01f);
+            cube.transform.parent = verteces.transform;
+            cubes.Add(cube);
+        }
+        return cubes;
+    }
+    Vector3[] Vertices(vtkObj data, bool showVertex)
     {
         int len = data.points.Length;
         Vector3[] ret = new Vector3[len];
@@ -164,8 +188,12 @@ public class vtkRenderer : MonoBehaviour
         }
         else
         {
+            if (showVertex)
+                CreateSpheres(data.points);
             return data.points;
         }
+        if (showVertex)
+            CreateSpheres(ret);
         return ret;
     }
 
